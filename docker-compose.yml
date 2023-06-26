@@ -1,0 +1,87 @@
+services:
+  nginx:
+    image: "nginx:latest"
+    restart: unless-stopped
+    healthcheck:
+      test: [ 'CMD', '/bin/healthcheck.sh' ]
+      interval: 1m
+      timeout: 5s
+      retries: 10
+    networks:
+      - watchdog_node
+    ports:
+      - "80:8000"
+
+  app:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    command:
+      - python -Wd manage.py runserver 0.0.0.0:8000
+    environment:
+      DJANGO_ENV: dev
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+      - nginx
+    volumes:
+      - django-static:/var/www/django/static
+      - .:/app
+    networks:
+      - watchdog_node
+    env_file: config/.env
+#    command: |
+#        python -m uvicorn server.asgi:app
+#        --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: |
+        [/usr/bin/test $$(
+          /usr/bin/curl --fail http://localhost:8000/health/?format=json
+          --write-out "%{http_code}" --silent --output /dev/null
+        ) -eq 200]
+        interval: 1m
+        timeout: 5s
+        retries: 10
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  db:
+    image: "postgres:latest"
+    restart: unless-stopped
+    env_file: config/.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1m
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - watchdog_node
+
+  redis:
+    image: "redis:latest"
+    restart: unless-stopped
+    env_file: config/.env
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
+      interval: 1m
+      timeout: 5s
+      retries: 10
+    ports:
+      - "6389:6379"
+
+
+networks:
+  watchdog_node:
+
+volumes:
+  postgres-data:
+  django-static:
