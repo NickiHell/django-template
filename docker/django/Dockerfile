@@ -83,7 +83,6 @@ RUN --mount=type=cache,target="$POETRY_CACHE_DIR" \
 
 COPY ./docker/django/entrypoint.sh /entrypoint.sh
 COPY ./docker/django/gunicorn.sh /gunicorn.sh
-COPY ./docker/django/gunicorn_config.py /gunicorn_config.py
 
 # Setting up proper permissions:
 RUN chmod +x '/entrypoint.sh' \
