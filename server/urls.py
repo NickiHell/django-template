@@ -9,7 +9,6 @@ api = NinjaAPI()
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('health/', include(health_urls)),
-
 ]
 
 
