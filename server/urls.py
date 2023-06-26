@@ -2,13 +2,11 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 from ninja import NinjaAPI
-from health_check import urls as health_urls
 
 api = NinjaAPI()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('health/', include(health_urls)),
 ]
 
 

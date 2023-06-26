@@ -88,12 +88,6 @@ NPLUSONE_WHITELIST = [
     {'model': 'admin.*'},
 ]
 
-# django-test-migrations
-# https://github.com/wemake-services/django-test-migrations
-
-# Set of badly named migrations to ignore:
-DTM_IGNORED_MIGRATIONS = frozenset((('axes', '*'),))
-
 # django-extra-checks
 # https://github.com/kalekseev/django-extra-checks
 
@@ -127,6 +121,4 @@ EXTRA_CHECKS = {
     ],
 }
 
-# Disable persistent DB connections
-# https://docs.djangoproject.com/en/3.2/ref/databases/#caveats
 DATABASES['default']['CONN_MAX_AGE'] = 0

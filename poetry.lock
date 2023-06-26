@@ -733,24 +733,6 @@ dev = ["Django", "black", "django-stubs", "djangorestframework", "djangorestfram
 test = ["pytest", "pytest-cov", "pytest-django"]
 
 [[package]]
-name = "django-health-check"
-version = "3.17.0"
-description = "Run checks on services like databases, queue servers, celery processes, etc."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "django-health-check-3.17.0.tar.gz", hash = "sha256:d1b8671e79d1de6e3dd1a9c69566222b0bfcfacca8b90511a4407b2d0d3d2778"},
-    {file = "django_health_check-3.17.0-py2.py3-none-any.whl", hash = "sha256:20dc5ccb516a4e7163593fd4026f0a7531e3027b47d23ebe3bd9dbc99ac4354c"},
-]
-
-[package.dependencies]
-django = ">=2.2"
-
-[package.extras]
-docs = ["sphinx"]
-test = ["celery", "pytest", "pytest-cov", "pytest-django", "redis"]
-
-[[package]]
 name = "django-http-referrer-policy"
 version = "1.1.1"
 description = "django-http-referrer-policy provides a middleware class implementing the Referrer-Policy header for Django-powered sites."
@@ -826,6 +808,24 @@ python-versions = "*"
 files = [
     {file = "django-querycount-0.8.3.tar.gz", hash = "sha256:0782484e8a1bd29498fa0195a67106e47cdcc98fafe80cebb1991964077cb694"},
 ]
+
+[[package]]
+name = "django-redis"
+version = "5.3.0"
+description = "Full featured redis cache backend for Django."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "django-redis-5.3.0.tar.gz", hash = "sha256:8bc5793ec06b28ea802aad85ec437e7646511d4e571e07ccad19cfed8b9ddd44"},
+    {file = "django_redis-5.3.0-py3-none-any.whl", hash = "sha256:2d8660d39f586c41c9907d5395693c477434141690fd7eca9d32376af00b0aac"},
+]
+
+[package.dependencies]
+Django = ">=3.2"
+redis = ">=3,<4.0.0 || >4.0.0,<4.0.1 || >4.0.1"
+
+[package.extras]
+hiredis = ["redis[hiredis] (>=3,!=4.0.0,!=4.0.1)"]
 
 [[package]]
 name = "django-split-settings"
@@ -2223,4 +2223,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "8d5e58a9cd46dfca72658433ab087a6263d7a3fe9081b0beb12d3983f1a35619"
+content-hash = "4084a4dd9f320d6fc3344dfa8efb82c878dea9af73d4b66628383105bb6c2fa7"

@@ -8,10 +8,9 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 AUTH_USER_MODEL = 'users.User'
 
-# Application definition:
 
 INSTALLED_APPS: tuple[str, ...] = (
-    # Apps
+    # Your apps
     'apps.users',
     'apps.core',
     # Default django apps
@@ -22,11 +21,6 @@ INSTALLED_APPS: tuple[str, ...] = (
     'django.contrib.staticfiles',
     # django-admin:
     'django.contrib.admin',
-    # see: https://github.com/KristianOellegaard/django-health-check
-    'health_check',
-    'health_check.db',
-    'health_check.cache',
-    'health_check.storage',
 )
 
 MIDDLEWARE: tuple[str, ...] = (
@@ -88,9 +82,8 @@ TIME_ZONE = 'UTC'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
-
+STATIC_ROOT = BASE_DIR.joinpath('static')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -127,10 +120,7 @@ MEDIA_ROOT = BASE_DIR.joinpath('media')
 # Django authentication system
 # https://docs.djangoproject.com/en/3.2/topics/auth/
 
-AUTHENTICATION_BACKENDS = (
-    'axes.backends.AxesBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',

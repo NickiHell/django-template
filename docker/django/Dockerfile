@@ -1,9 +1,7 @@
-FROM python:3.11.4
+FROM python:3.11.4-slim-bullseye
 
 
-# `DJANGO_ENV` arg is used to make prod / dev builds:
 ARG DJANGO_ENV \
-  # Needed for fixing permissions of files created by Docker:
   UID=1000 \
   GID=1000
 
@@ -29,9 +27,6 @@ ENV DJANGO_ENV=${DJANGO_ENV} \
 
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
-# System deps (we don't use exact versions because it is hard to update them,
-# pin when needed):
-# hadolint ignore=DL3008
 RUN apt-get update && apt-get upgrade -y \
   && apt-get install --no-install-recommends -y \
     bash \
@@ -42,18 +37,13 @@ RUN apt-get update && apt-get upgrade -y \
     git \
     libpq-dev \
     wait-for-it \
-  # Installing `tini` utility:
-  # https://github.com/krallin/tini
-  # Get architecture to download appropriate tini release:
-  # See https://github.com/wemake-services/wemake-django-template/issues/1725
+    postgresql-client \
+    gettext \
   && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
   && curl -o /usr/local/bin/tini -sSLO "https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${dpkgArch}" \
   && chmod +x /usr/local/bin/tini && tini --version \
-  # Installing `poetry` package manager:
-  # https://github.com/python-poetry/poetry
   && curl -sSL 'https://install.python-poetry.org' | python - \
   && poetry --version \
-  # Cleaning cache:
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
