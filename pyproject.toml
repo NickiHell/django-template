@@ -10,7 +10,7 @@ python = "^3.11"
 
 django = { version = "^4.2", extras = ["argon2"] }
 django-ninja = "^0.22.2"
-django-stubs-ext = "^4.2.1"
+django-stubs-ext = "^4.2.2"
 django-csp = "^3.7"
 django-split-settings = "^1.2"
 django-http-referrer-policy = "^1.1"
