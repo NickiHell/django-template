@@ -787,13 +787,13 @@ test = ["black", "django-stubs", "flake8", "isort", "mypy (==0.931)", "psycopg2-
 
 [[package]]
 name = "django-permissions-policy"
-version = "4.16.0"
+version = "4.17.0"
 description = "Set the draft security HTTP header Permissions-Policy (previously Feature-Policy) on your Django app."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "django_permissions_policy-4.16.0-py3-none-any.whl", hash = "sha256:e8a6f956d49b471854dc0a06bfefa5164e5e7531f3e423acdca35e5df76bab5c"},
-    {file = "django_permissions_policy-4.16.0.tar.gz", hash = "sha256:bb786fb10246cb5acfa20ac091956c649492694f55e041395ed2b2e516b24519"},
+    {file = "django_permissions_policy-4.17.0-py3-none-any.whl", hash = "sha256:e317143f8c8ef7ff30dc20bc1343f8f299c9e4423148957d9f0fc2bae04b0ebe"},
+    {file = "django_permissions_policy-4.17.0.tar.gz", hash = "sha256:cb2f0d2772ddab63dabd50331fa823d0cea06c89932d412c8c6aa5fc239b364f"},
 ]
 
 [package.dependencies]
@@ -2223,4 +2223,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "3125432951ce89605e8b68d6e5b4cee0a69382f11466bff6da6946aad0d2a322"
+content-hash = "98e1fe59dfe7a4aee30a59c5d9f57db7e145231c90a489c05f79355df0ad1923"
