@@ -30,7 +30,7 @@ aiofiles = "^23.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
-ruff = "^0.0.277"
+ruff = "^0.0.278"
 django-debug-toolbar = "^4.1"
 django-querycount = "^0.8"
 django-migration-linter = "^5.0"
