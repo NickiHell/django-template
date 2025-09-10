@@ -4,89 +4,89 @@ from django.utils.translation import gettext_lazy as _
 from server.settings.components import BASE_DIR, config
 
 
-SECRET_KEY = config('DJANGO_SECRET_KEY')
+SECRET_KEY = config("DJANGO_SECRET_KEY")
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = "users.User"
 
 
 INSTALLED_APPS: tuple[str, ...] = (
     # Your apps
-    'apps.users',
-    'apps.core',
+    "apps.users",
+    "apps.core",
     # Default django apps
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     # django-admin:
-    'django.contrib.admin',
+    "django.contrib.admin",
 )
 
 MIDDLEWARE: tuple[str, ...] = (
     # Logging:
-    'server.settings.components.logging.LoggingContextVarsMiddleware',
+    "server.settings.components.logging.LoggingContextVarsMiddleware",
     # Content Security Policy:
-    'csp.middleware.CSPMiddleware',
+    "csp.middleware.CSPMiddleware",
     # Django:
-    'django.middleware.security.SecurityMiddleware',
-    'django_permissions_policy.PermissionsPolicyMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django_permissions_policy.PermissionsPolicyMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Django HTTP Referrer Policy:
-    'django_http_referrer_policy.middleware.ReferrerPolicyMiddleware',
+    "django_http_referrer_policy.middleware.ReferrerPolicyMiddleware",
 )
 
-ROOT_URLCONF = 'server.urls'
+ROOT_URLCONF = "server.urls"
 
-ASGI_APPLICATION = 'server.asgi.app'
+ASGI_APPLICATION = "server.asgi.app"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('POSTGRES_DB', 'postgres'),
-        'USER': config('POSTGRES_USER', 'postgres'),
-        'PASSWORD': config('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': config('POSTGRES_HOST', 'db'),
-        'PORT': config('POSTGRES_PORT', cast=int),
-        'CONN_MAX_AGE': config('CONN_MAX_AGE', cast=int, default=60),
-        'OPTIONS': {
-            'connect_timeout': 10,
-            'options': '-c statement_timeout=15000ms',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": config("POSTGRES_DB", "postgres"),
+        "USER": config("POSTGRES_USER", "postgres"),
+        "PASSWORD": config("POSTGRES_PASSWORD", "postgres"),
+        "HOST": config("POSTGRES_HOST", "db"),
+        "PORT": config("POSTGRES_PORT", cast=int),
+        "CONN_MAX_AGE": config("CONN_MAX_AGE", cast=int, default=60),
+        "OPTIONS": {
+            "connect_timeout": 10,
+            "options": "-c statement_timeout=15000ms",
         },
     },
 }
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
 USE_I18N = True
 USE_L10N = True
 
 LANGUAGES = (
-    ('en', _('English')),
-    ('ru', _('Russian')),
+    ("en", _("English")),
+    ("ru", _("Russian")),
 )
 
-LOCALE_PATHS = ('locale/',)
+LOCALE_PATHS = ("locale/",)
 
 USE_TZ = True
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR.joinpath('static')
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR.joinpath("static")
 STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
 # Templates
@@ -94,39 +94,39 @@ STATICFILES_FINDERS = (
 
 TEMPLATES = [
     {
-        'APP_DIRS': True,
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
+        "APP_DIRS": True,
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
             # Contains plain text templates, like `robots.txt`:
-            BASE_DIR.joinpath('templates'),
+            BASE_DIR.joinpath("templates"),
         ],
-        'OPTIONS': {
-            'context_processors': [
+        "OPTIONS": {
+            "context_processors": [
                 # Default template context processors:
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request',
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
 ]
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR.joinpath('media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR.joinpath("media")
 
 # Django authentication system
 # https://docs.djangoproject.com/en/3.2/topics/auth/
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
+AUTHENTICATION_BACKENDS = ("django.contrib.auth.backends.ModelBackend",)
 
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.Argon2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher",
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
 ]
 
 # Security
@@ -137,11 +137,11 @@ CSRF_COOKIE_HTTPONLY = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_BROWSER_XSS_FILTER = True
 
-X_FRAME_OPTIONS = 'DENY'
+X_FRAME_OPTIONS = "DENY"
 
 # https://github.com/DmytroLitvinov/django-http-referrer-policy
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-REFERRER_POLICY = 'same-origin'
+REFERRER_POLICY = "same-origin"
 
 # https://github.com/adamchainz/django-permissions-policy#setting
 PERMISSIONS_POLICY: dict[str, str | list[str]] = {}
@@ -153,4 +153,4 @@ EMAIL_TIMEOUT = 5
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
