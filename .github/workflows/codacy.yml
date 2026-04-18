@@ -31,19 +31,26 @@ jobs:
           gh-code-scanning-compat: true
           max-allowed-issues: 2147483647
 
-      # GitHub Code Scanning (since 2025-07) rejects one SARIF file with multiple runs
-      # sharing the same category; Codacy CLI emits several. Assign a unique
-      # automationDetails.id per run before upload.
-      # https://github.blog/changelog/2025-07-21-code-scanning-will-stop-combining-multiple-sarif-runs-uploaded-in-the-same-sarif-file/
-      - name: Normalize SARIF run categories for Code Scanning
+      # 1) GitHub Code Scanning (since 2025-07) rejects multiple runs with the same category
+      #    in one SARIF; Codacy emits several — give each run a unique automationDetails.id.
+      #    https://github.blog/changelog/2025-07-21-code-scanning-will-stop-combining-multiple-sarif-runs-uploaded-in-the-same-sarif-file/
+      # 2) Codacy embeds fingerprints that differ from GitHub's calculator → thousands of
+      #    "inconsistent fingerprint" warnings. Strip them so upload-sarif recomputes.
+      #    https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning#providing-data-to-track-code-scanning-alerts-across-runs
+      - name: Normalize SARIF for Code Scanning
         shell: bash
         run: |
           set -euo pipefail
           test -f results.sarif
-          jq '.runs //= []
+          jq '
+            .runs //= []
             | .runs |= [to_entries[] | .value + {
                 automationDetails: ((.value.automationDetails // {}) + {id: ("Codacy/\(.key)")})
-              }]' results.sarif > results.code-scanning.sarif
+              }]
+            | walk(
+                if type == "object" then del(.fingerprints, .partialFingerprints) else . end
+              )
+          ' results.sarif > results.code-scanning.sarif
 
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v4
