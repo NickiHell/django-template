@@ -31,7 +31,22 @@ jobs:
           gh-code-scanning-compat: true
           max-allowed-issues: 2147483647
 
+      # GitHub Code Scanning (since 2025-07) rejects one SARIF file with multiple runs
+      # sharing the same category; Codacy CLI emits several. Assign a unique
+      # automationDetails.id per run before upload.
+      # https://github.blog/changelog/2025-07-21-code-scanning-will-stop-combining-multiple-sarif-runs-uploaded-in-the-same-sarif-file/
+      - name: Normalize SARIF run categories for Code Scanning
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f results.sarif
+          jq '.runs //= []
+            | .runs |= [to_entries[] | .value + {
+                automationDetails: ((.value.automationDetails // {}) + {id: ("Codacy/\(.key)")})
+              }]' results.sarif > results.code-scanning.sarif
+
       - name: Upload SARIF results file
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: results.sarif
+          sarif_file: results.code-scanning.sarif
+          category: /tool:codacy
