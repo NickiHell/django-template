@@ -1,16 +1,21 @@
 # built-in
+from __future__ import annotations
+
 import logging
 import socket
+from typing import TYPE_CHECKING
 
 # project
 from server.settings.components import config
 from server.settings.components.common import DATABASES, INSTALLED_APPS, MIDDLEWARE
 
+if TYPE_CHECKING:
+    from django.http import HttpRequest
 
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    config("DOMAIN_NAME"),
+    config("DOMAIN_NAME", default="localhost"),
     "localhost",
     "0.0.0.0",
     "127.0.0.1",
@@ -52,14 +57,15 @@ MIDDLEWARE += (
 )
 
 # https://django-debug-toolbar.readthedocs.io/en/stable/installation.html#configure-internal-ips
-try:  # This might fail on some OS
-    INTERNAL_IPS = ["{}.1".format(ip[: ip.rfind(".")]) for ip in socket.gethostbyname_ex(socket.gethostname())[2]]
+try:  # pragma: no cover
+    _hostname_ips = socket.gethostbyname_ex(socket.gethostname())[2]
+    INTERNAL_IPS = ["{}.1".format(ip[: ip.rfind(".")]) for ip in _hostname_ips]
 except OSError:  # pragma: no cover
     INTERNAL_IPS = []
 INTERNAL_IPS += ["127.0.0.1", "10.0.2.2"]
 
 
-def _custom_show_toolbar(request):
+def _custom_show_toolbar(request: HttpRequest) -> bool:
     """Only show the debug toolbar to users with the superuser flag."""
     return DEBUG and request.user.is_superuser
 
@@ -83,7 +89,7 @@ MIDDLEWARE = ("nplusone.ext.django.NPlusOneMiddleware", *MIDDLEWARE)
 # Logging N+1 requests:
 NPLUSONE_RAISE = True  # comment out if you want to allow N+1 requests
 NPLUSONE_LOGGER = logging.getLogger("django")
-NPLUSONE_LOG_LEVEL = logging.WARN
+NPLUSONE_LOG_LEVEL = logging.WARNING
 NPLUSONE_WHITELIST = [
     {"model": "admin.*"},
 ]
@@ -93,30 +99,13 @@ NPLUSONE_WHITELIST = [
 
 EXTRA_CHECKS = {
     "checks": [
-        # Forbid `unique_together`:
         "no-unique-together",
-        # Require non empty `upload_to` argument:
         "field-file-upload-to",
-        # Use the indexes option instead:
-        "no-index-together",
-        # Each model must be registered in admin:
         "model-admin",
-        # FileField/ImageField must have non empty `upload_to` argument:
-        "field-file-upload-to",
-        # Text fields shouldn't use `null=True`:
         "field-text-null",
-        # Prefer using BooleanField(null=True) instead of NullBooleanField:
-        "field-boolean-null",
-        # Don't pass `null=False` to model fields (this is django default)
         "field-null",
-        # ForeignKey fields must specify db_index explicitly if used in
-        # other indexes:
         {"id": "field-foreign-key-db-index", "when": "indexes"},
-        # If field nullable `(null=True)`,
-        # then default=None argument is redundant and should be removed:
         "field-default-null",
-        # Fields with choices must have companion CheckConstraint
-        # to enforce choices on database level
         "field-choices-constraint",
     ],
 }

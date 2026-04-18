@@ -1,34 +1,24 @@
-FROM python:3.11.4-slim-bullseye
+FROM python:3.13-slim-bookworm
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-ARG DJANGO_ENV \
-  UID=1000 \
-  GID=1000
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    UV_PYTHON_DOWNLOADS=never \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONHASHSEED=random \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-ENV DJANGO_ENV=${DJANGO_ENV} \
-  # python:
-  PYTHONFAULTHANDLER=1 \
-  PYTHONUNBUFFERED=1 \
-  PYTHONHASHSEED=random \
-  PYTHONDONTWRITEBYTECODE=1 \
-  # pip:
-  PIP_NO_CACHE_DIR=1 \
-  PIP_DISABLE_PIP_VERSION_CHECK=1 \
-  PIP_DEFAULT_TIMEOUT=100 \
-  PIP_ROOT_USER_ACTION=ignore \
-  # tini:
-  TINI_VERSION=v0.19.0 \
-  # poetry:
-  POETRY_VERSION=1.5.1 \
-  POETRY_NO_INTERACTION=1 \
-  POETRY_VIRTUALENVS_CREATE=false \
-  POETRY_CACHE_DIR='/var/cache/pypoetry' \
-  POETRY_HOME='/usr/local'
+ARG WITH_DEV=false
+ARG UID=1000
+ARG GID=1000
 
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
-RUN apt-get update && apt-get upgrade -y \
-  && apt-get install --no-install-recommends -y \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
     bash \
     brotli \
     build-essential \
@@ -36,51 +26,38 @@ RUN apt-get update && apt-get upgrade -y \
     gettext \
     git \
     libpq-dev \
-    wait-for-it \
     postgresql-client \
-    gettext \
-  && dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" \
-  && curl -o /usr/local/bin/tini -sSLO "https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${dpkgArch}" \
-  && chmod +x /usr/local/bin/tini && tini --version \
-  && curl -sSL 'https://install.python-poetry.org' | python - \
-  && poetry --version \
-  && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-  && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+    tini \
+    wait-for-it \
+  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 RUN groupadd -g "${GID}" -r web \
-  && useradd -d '/app' -g web -l -r -u "${UID}" web \
-  && chown web:web -R '/app' \
-  # Static and media files:
-  && mkdir -p '/var/www/django/static' '/var/www/django/media' \
-  && chown web:web '/var/www/django/static' '/var/www/django/media'
+  && useradd -d /app -g web -l -r -u "${UID}" web \
+  && mkdir -p /var/www/django/static /var/www/django/media \
+  && chown web:web /var/www/django/static /var/www/django/media
 
-# Copy only requirements, to cache them in docker layer
-COPY --chown=web:web ./poetry.lock ./pyproject.toml /app/
+COPY pyproject.toml uv.lock ./
 
-# Project initialization:
-# hadolint ignore=SC2046
-RUN --mount=type=cache,target="$POETRY_CACHE_DIR" \
-  echo "$DJANGO_ENV" \
-  && poetry version \
-  # Install deps:
-  && poetry run pip install -U pip \
-  && poetry install \
-    $(if [ "$DJANGO_ENV" = 'production' ]; then echo '--only main'; fi) \
-    --no-interaction --no-ansi
+RUN --mount=type=cache,target=/root/.cache/uv \
+    if [[ "${WITH_DEV}" == "true" ]]; then \
+      uv sync --frozen; \
+    else \
+      uv sync --frozen --no-group dev; \
+    fi \
+  && chown -R web:web /app/.venv
 
+COPY --chown=web:web . .
 
-COPY ./docker/django/entrypoint.sh /entrypoint.sh
-COPY ./docker/django/gunicorn.sh /gunicorn.sh
+COPY docker/django/entrypoint.sh /entrypoint.sh
+COPY docker/django/gunicorn.sh /gunicorn.sh
 
-# Setting up proper permissions:
-RUN chmod +x '/entrypoint.sh' \
-  # Replacing line separator CRLF with LF for Windows users:
-  && sed -i 's/\r$//g' '/entrypoint.sh'
+RUN chmod +x /entrypoint.sh \
+  && sed -i 's/\r$//g' /entrypoint.sh \
+  && mkdir -p /app/static /app/media \
+  && chown -R web:web /app
 
-# Running as non-root user:
 USER web
 
-# We customize how our app is loaded with the custom entrypoint:
 ENTRYPOINT ["tini", "--", "/entrypoint.sh"]

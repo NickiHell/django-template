@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 from django.utils.translation import gettext_lazy as _
 
-# project
 from server.settings.components import BASE_DIR, config
 
-
-SECRET_KEY = config("DJANGO_SECRET_KEY")
+SECRET_KEY = config(
+    "DJANGO_SECRET_KEY",
+    default="django-insecure-change-me-for-local-dev",
+)
 
 AUTH_USER_MODEL = "users.User"
 
@@ -44,19 +47,19 @@ MIDDLEWARE: tuple[str, ...] = (
 
 ROOT_URLCONF = "server.urls"
 
-ASGI_APPLICATION = "server.asgi.app"
+ASGI_APPLICATION = "server.asgi.application"
 
 # Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+# https://docs.djangoproject.com/en/3.2/ref/databases/
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": config("POSTGRES_DB", "postgres"),
         "USER": config("POSTGRES_USER", "postgres"),
         "PASSWORD": config("POSTGRES_PASSWORD", "postgres"),
         "HOST": config("POSTGRES_HOST", "db"),
-        "PORT": config("POSTGRES_PORT", cast=int),
+        "PORT": config("POSTGRES_PORT", default=5432, cast=int),
         "CONN_MAX_AGE": config("CONN_MAX_AGE", cast=int, default=60),
         "OPTIONS": {
             "connect_timeout": 10,
@@ -68,7 +71,6 @@ DATABASES = {
 LANGUAGE_CODE = "en-us"
 
 USE_I18N = True
-USE_L10N = True
 
 LANGUAGES = (
     ("en", _("English")),
@@ -83,26 +85,32 @@ TIME_ZONE = "UTC"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR.joinpath("static")
+STATIC_ROOT = BASE_DIR / "static"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 )
 
 # Templates
-# https://docs.djangoproject.com/en/3.2/ref/templates/api
+# https://docs.djangoproject.com/en/3.2/ref/templates/api/
 
 TEMPLATES = [
     {
         "APP_DIRS": True,
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
-            # Contains plain text templates, like `robots.txt`:
-            BASE_DIR.joinpath("templates"),
+            BASE_DIR / "templates",
         ],
         "OPTIONS": {
             "context_processors": [
-                # Default template context processors:
                 "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.i18n",
@@ -115,7 +123,7 @@ TEMPLATES = [
 ]
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR.joinpath("media")
+MEDIA_ROOT = BASE_DIR / "media"
 
 # Django authentication system
 # https://docs.djangoproject.com/en/3.2/topics/auth/
@@ -139,18 +147,10 @@ SECURE_BROWSER_XSS_FILTER = True
 
 X_FRAME_OPTIONS = "DENY"
 
-# https://github.com/DmytroLitvinov/django-http-referrer-policy
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
 REFERRER_POLICY = "same-origin"
 
-# https://github.com/adamchainz/django-permissions-policy#setting
 PERMISSIONS_POLICY: dict[str, str | list[str]] = {}
-
-# Timeouts
-# https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-EMAIL_TIMEOUT
 
 EMAIL_TIMEOUT = 5
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

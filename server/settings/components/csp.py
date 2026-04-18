@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_IMG_SRC = ("'self'",)
 CSP_FONT_SRC = ("'self'",)

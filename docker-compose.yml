@@ -1,55 +1,65 @@
 services:
   nginx:
-    image: "nginx:latest"
+    image: nginx:1.27-alpine
     restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl --fail http://localhost:80/health || exit 1" ]
-      interval: 1m
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health | grep -q healthy"]
+      interval: 30s
       timeout: 5s
-      retries: 10
+      retries: 5
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - watchdog_node
     ports:
-      - "80:8000"
+      - "8080:80"
 
   app:
     restart: unless-stopped
     build:
       context: .
       dockerfile: docker/django/Dockerfile
+      args:
+        WITH_DEV: "true"
     environment:
       DJANGO_ENV: dev
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
-      - nginx
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - django-static:/var/www/django/static
-      - .:/app
     networks:
       - watchdog_node
     env_file: config/.env
     command:
-      - python -Wd manage.py runserver 0.0.0.0:8000
+      - python
+      - -Wd
+      - manage.py
+      - runserver
+      - 0.0.0.0:8000
     healthcheck:
-      test: [ "CMD", "curl --fail http://localhost:8000/admin || exit 1" ]
-      interval: 1m
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/admin/ || exit 1"]
+      interval: 30s
       timeout: 5s
       retries: 10
+      start_period: 40s
 
   db:
-    image: "postgres:latest"
+    image: postgres:17-bookworm
     restart: unless-stopped
     env_file: config/.env
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 1m
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
@@ -58,17 +68,18 @@ services:
       - watchdog_node
 
   redis:
-    image: "redis:latest"
+    image: redis:7-alpine
     restart: unless-stopped
     env_file: config/.env
     healthcheck:
-      test: [ "CMD", "redis-cli","ping" ]
-      interval: 1m
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
       timeout: 5s
-      retries: 10
+      retries: 5
     ports:
       - "6379:6379"
-
+    networks:
+      - watchdog_node
 
 networks:
   watchdog_node:

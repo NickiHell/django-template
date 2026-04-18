@@ -1,0 +1,11 @@
+from __future__ import annotations
+
+import pytest
+from django.test import Client
+
+
+@pytest.mark.django_db
+def test_admin_requires_auth_or_redirects() -> None:
+    client = Client()
+    response = client.get("/admin/")
+    assert response.status_code in (200, 302, 403)

@@ -1,12 +1,14 @@
 # built-in
-from collections.abc import Callable
+from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 # external
 import structlog
 
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from django.http import HttpRequest, HttpResponse
 
 LOGGING = None
@@ -17,12 +19,12 @@ class LoggingContextVarsMiddleware:
 
     def __init__(
         self,
-        get_response: "Callable[[HttpRequest], HttpResponse]",
+        get_response: Callable[[HttpRequest], HttpResponse],
     ) -> None:
         """Django's API-compatible constructor."""
         self.get_response = get_response
 
-    def __call__(self, request: "HttpRequest") -> "HttpResponse":
+    def __call__(self, request: HttpRequest) -> HttpResponse:
         """
         Handle requests.
 
