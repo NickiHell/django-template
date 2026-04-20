@@ -38,7 +38,7 @@ dev = [
   "nplusone>=1.0.0",
   "pytest>=9.0.3",
   "pytest-django>=4.11.1",
-  "pytest-randomly>=4.0.0",
+  "pytest-randomly>=4.0.1",
   "ruff>=0.13.0",
 ]
 
